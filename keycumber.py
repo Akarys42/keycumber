@@ -3,7 +3,7 @@ import asyncio
 import dataclasses
 import pickle
 import sys
-from typing import Optional, NoReturn
+from typing import NoReturn, Optional
 
 import websockets
 
@@ -53,6 +53,7 @@ class Keycumber:
             except websockets.ConnectionClosed:
                 print(f"Session ended with client {client_id}.")
                 break
+
             if DEBUG:
                 print(f"Received: {message}")
 
@@ -62,28 +63,8 @@ class Keycumber:
             )  # ! Unpickling from an untrusted source !
             print(f"< {packet}")
 
-            if packet.action == "get":
-                # First check if the key exists
-                if packet.key in self.content:
-                    # If it does, send the value back
-                    return_packet = ReturnPacket("ok", self.content[packet.key])
-                else:
-                    # If it doesn't, send an error back
-                    return_packet = ReturnPacket("not_found", None)
-            elif packet.action == "set":
-                self.content[packet.key] = packet.value
-
-                return_packet = ReturnPacket("ok", None)
-            elif packet.action == "delete":
-                if packet.key in self.content:
-                    del self.content[packet.key]
-
-                    return_packet = ReturnPacket("ok", None)
-                else:
-                    return_packet = ReturnPacket("not_found", None)
-            else:
-                # If the action is not recognized, send an error back
-                return_packet = ReturnPacket("error", None)
+            # Process the packet and get whatever response we need
+            return_packet = self.process_packet(packet)
 
             # Log the return packet
             print(f"> {return_packet}")
@@ -94,6 +75,32 @@ class Keycumber:
     def drop_all(self) -> None:
         # ! This is a dangerous operation !
         self.content = {}
+
+    def process_packet(self, packet: AddressPacket) -> ReturnPacket:
+        if packet.action == "get":
+            # First check if the key exists
+            if packet.key in self.content:
+                # If it does, send the value back
+                return_packet = ReturnPacket("ok", self.content[packet.key])
+            else:
+                # If it doesn't, send an error back
+                return_packet = ReturnPacket("not_found", None)
+        elif packet.action == "set":
+            self.content[packet.key] = packet.value
+
+            return_packet = ReturnPacket("ok", None)
+        elif packet.action == "delete":
+            if packet.key in self.content:
+                del self.content[packet.key]
+
+                return_packet = ReturnPacket("ok", None)
+            else:
+                return_packet = ReturnPacket("not_found", None)
+        else:
+            # If the action is not recognized, send an error back
+            return_packet = ReturnPacket("error", None)
+
+        return return_packet
 
 
 if __name__ == "__main__":
