@@ -3,7 +3,7 @@ import asyncio
 import dataclasses
 import pickle
 import sys
-from typing import Optional
+from typing import Optional, NoReturn
 
 import websockets
 
@@ -35,7 +35,7 @@ class Keycumber:
         self.content = {}
         self.next_id = 0
 
-    async def start(self) -> None:
+    async def start(self) -> NoReturn:
         print("Starting server on port 8765...")
         async with websockets.serve(self.handle_new_session, "localhost", 8765):
             await asyncio.Future()  # Never return
