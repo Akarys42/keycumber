@@ -15,7 +15,7 @@ DEBUG = any(arg in ("-d", "--debug") for arg in sys.argv)
 
 @dataclasses.dataclass
 class AddressPacket:
-    """Class representing a single interaction from the client to the server."""
+    """Single interaction from the client to the server."""
 
     action: str  # "get", "set" or "delete"
     key: str
@@ -24,7 +24,7 @@ class AddressPacket:
 
 @dataclasses.dataclass
 class ReturnPacket:
-    """Class representing a value or ack from the server to the client."""
+    """Value or ack from the server to the client."""
 
     status: str  # "ok", "error" or "not_found"
     value: Optional[str]
