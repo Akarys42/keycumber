@@ -6,7 +6,7 @@ import websockets
 from keycumber import AddressPacket, ReturnPacket
 
 OPENING_TEXT = """
-Welcome to the Keycumber repl, a tool built by Matteo Bertucci for his Pyjamas 2021 talk
+Welcome to the Keycumber repl
 Type 'help' for more information
 """.strip()
 
